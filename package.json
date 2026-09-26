@@ -1,0 +1,41 @@
+{
+  "name": "@wieslawsoltes/webcomponents-showcase",
+  "version": "1.0.0",
+  "description": "The independent web toolkit \u2014 a statically generated component showcase with real, isolated npm playgrounds.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/preview.mjs",
+    "dev": "npm run build && npm run preview",
+    "test": "node --test tests/site.test.mjs",
+    "test:browser": "playwright test",
+    "check": "npm run build && npm test && npm run test:browser"
+  },
+  "author": "Wies\u0142aw \u0160olt\u00e9s",
+  "license": "MIT",
+  "dependencies": {
+    "@codemirror/lang-css": "6.3.1",
+    "@codemirror/lang-html": "6.4.12",
+    "@codemirror/lang-javascript": "6.2.5",
+    "@codemirror/theme-one-dark": "6.1.3",
+    "@playwright/test": "1.63.0",
+    "@wieslawsoltes/dockyard": "0.2.0",
+    "@wieslawsoltes/drawingweb": "0.1.0-alpha.1",
+    "@wieslawsoltes/dynamicdataweb": "0.1.1",
+    "@wieslawsoltes/gridweb": "0.8.0",
+    "@wieslawsoltes/quikgraphweb": "0.2.0",
+    "@wieslawsoltes/rbushweb": "0.1.1",
+    "@wieslawsoltes/reactiveweb": "0.2.0",
+    "@wieslawsoltes/ribbon-web": "0.1.1",
+    "@wieslawsoltes/richtextweb": "0.5.0",
+    "@wieslawsoltes/skiasharpweb": "0.5.1",
+    "@wieslawsoltes/treedatagridweb": "0.1.0",
+    "codemirror": "6.0.2",
+    "esbuild": "0.28.2",
+    "rxjs": "7.8.2"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.16"
+  }
+}
