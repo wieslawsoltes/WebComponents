@@ -1,0 +1,30 @@
+name: Qualify published component toolchain
+on:
+  push:
+    paths: ['.github/workflows/bootstrap.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install published component and build toolchain
+        run: |
+          mkdir toolchain
+          cd toolchain
+          npm init -y
+          npm install --save-exact @wieslawsoltes/dockyard @wieslawsoltes/treedatagridweb @wieslawsoltes/dynamicdataweb @wieslawsoltes/ribbon-web @wieslawsoltes/skiasharpweb @wieslawsoltes/reactiveweb @wieslawsoltes/rbushweb @wieslawsoltes/quikgraphweb @wieslawsoltes/richtextweb @wieslawsoltes/gridweb @wieslawsoltes/drawingweb rxjs esbuild codemirror @codemirror/lang-javascript @codemirror/lang-html @codemirror/lang-css @codemirror/theme-one-dark @playwright/test
+          npm ls --depth=0
+          node -e "for (const [p,v] of Object.entries(require('./package.json').dependencies)) console.log(p, v)"
+          cd ..
+          tar -czf toolchain.tar.gz toolchain
+      - uses: actions/upload-artifact@v4
+        with:
+          name: component-toolchain
+          path: toolchain.tar.gz
+          retention-days: 2
