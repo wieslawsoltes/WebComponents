@@ -1,0 +1,30 @@
+name: Browser fixture and Pages configuration
+on:
+  push:
+    paths: ['.github/workflows/browser-fixture.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npx --yes playwright@1.63.0 install chromium --only-shell
+          tar -czf browser.tar.gz -C "$HOME/.cache" ms-playwright
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chromium-test-fixture
+          path: browser.tar.gz
+          retention-days: 2
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
