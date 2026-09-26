@@ -1,0 +1,84 @@
+name: Validate and publish WebComponents
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: showcase-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Generate static pages and bundle real npm runtimes
+        run: npm run build
+        env:
+          SITE_BASE: /WebComponents/
+      - run: npm test
+      - run: npx playwright install chromium --with-deps
+      - run: npm run test:browser
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      - name: Upload static site
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Publish GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify published URLs and native module headers
+        run: node scripts/check-live.mjs '${{ steps.deployment.outputs.page_url }}'
+      - name: Install hosted-browser verification tools
+        run: npm ci
+      - run: npx playwright install chromium --with-deps
+      - name: Exercise the published site in Chromium
+        run: npm run test:browser
+        env:
+          TEST_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+      - name: Preserve hosted browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hosted-browser-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
